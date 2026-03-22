@@ -2,9 +2,7 @@
 
 Ever wanted to call GitHub Copilot from your Java code? Now you can.
 
-The **Copilot SDK for Java** is a community-built SDK that gives you programmatic access to GitHub Copilot via the **GitHub Copilot CLI**, so you can build AI-powered tools, assistants, and agentic workflows—entirely in Java.
-
-> **Important:** This is a community project, not an official GitHub product.
+The **[Copilot SDK for Java](https://github.com/github/copilot-sdk-java)** is the official GitHub SDK that gives you programmatic access to GitHub Copilot via the **GitHub Copilot CLI**, so you can build AI-powered tools, assistants, and agentic workflows—entirely in Java.
 
 At a high level, your Java app talks to this SDK, and the SDK drives the Copilot CLI for you. That means you can embed Copilot-style experiences inside your own tools while staying close to the official Copilot ecosystem.
 
@@ -29,7 +27,7 @@ No local inference occurs—all AI processing is server-side, metered against yo
 
 Before you write a line of code, make sure your machine is ready.
 
-You’ll need **Java 17+**, plus the **GitHub Copilot CLI** installed and accessible on your `PATH` (or you can point the SDK at it using a custom `cliPath`). You’ll also need an active Copilot entitlement, because the CLI won’t run without one.
+You’ll need **Java 21+**, plus the **GitHub Copilot CLI** installed and accessible on your `PATH` (or you can point the SDK at it using a custom `cliPath`). You’ll also need an active Copilot entitlement, because the CLI won’t run without one.
 
 #### Step 1: Install Node.js
 
@@ -192,12 +190,6 @@ https://github.com/brunoborges/jmeter-copilot-plugin
 
 ## Learn more
 
-Documentation: https://copilot-community-sdk.github.io/copilot-sdk-java/  
-API reference (Javadoc): https://copilot-community-sdk.github.io/copilot-sdk-java/apidocs/  
-Source code: https://github.com/copilot-community-sdk/copilot-sdk-java
+- **Official SDK repository:** https://github.com/github/copilot-sdk-java
 
-## Contributing
 
-This is a community project, and contributions are welcome—PRs, bug reports, and feedback all help.
-
-If you build something cool with the SDK, consider adding your project as an example so other Java developers can copy, learn, and ship faster.
