@@ -17,6 +17,6 @@
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "./mvnw dependency:resolve",
+  "postCreateCommand": "gh extension install github/gh-copilot && ./mvnw dependency:resolve",
   "remoteUser": "vscode"
 }
