@@ -1,17 +1,14 @@
 {
-  "name": "Copilot SDK Java",
-  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "name": "Copilot SDK Task Tracker",
+  "image": "mcr.microsoft.com/devcontainers/java:21-bookworm",
   "features": {
-    "ghcr.io/devcontainers/features/java:1": {
-      "version": "21",
-      "installMaven": "true"
-    },
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "customizations": {
     "vscode": {
       "extensions": [
         "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
         "GitHub.copilot"
       ],
       "settings": {
@@ -19,5 +16,7 @@
       }
     }
   },
-  "postCreateCommand": "./mvnw compile"
+  "forwardPorts": [8080],
+  "postCreateCommand": "./mvnw dependency:resolve",
+  "remoteUser": "vscode"
 }
