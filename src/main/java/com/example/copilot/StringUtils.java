@@ -1,0 +1,1 @@
+StringUtils.java created at `src\main\java\com\example\copilot\StringUtils.java` with all three methods implemented using Java 21 features.
