@@ -1,0 +1,1 @@
+Done. Created `FileUtils.java` at `src\main\java\com\example\copilot\FileUtils.java` with all requested methods using Java 21 features.

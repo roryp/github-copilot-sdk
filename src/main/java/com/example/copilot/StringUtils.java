@@ -1,0 +1,1 @@
+Created `StringUtils.java` with `reverse`, `isPalindrome`, and `truncate` methods using Java 21 features (`var`, modern syntax). All methods handle null gracefully.
