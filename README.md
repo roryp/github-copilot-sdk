@@ -239,6 +239,34 @@ Run it:
 ```bash
 mvn compile exec:java -Dexec.mainClass=com.example.copilot.WorktreeAutoMergeExample
 ```
+## Parallel Worktree Workflow (LangChain4j Agentic)
+
+<img src="docs/parallel-worktree.png" alt="Parallel Worktree Workflow — LangChain4j + Copilot SDK" width="800"/>
+
+*This diagram shows the fan-out/fan-in pipeline: 3 generation agents and 3 review agents run concurrently via LangChain4j's parallelBuilder().*
+
+[`ParallelWorktreeExample.java`](src/main/java/com/example/copilot/ParallelWorktreeExample.java) extends the worktree pattern with **parallel fan-out** using [LangChain4j's agentic module](https://github.com/langchain4j/langchain4j) (`AgenticServices.parallelBuilder()`):
+
+```
+                          ╭→ Agent A: generate StringUtils.java ─╮
+Create worktree ──────────├→ Agent B: generate DateUtils.java   ─├→ Commit all → Merge
+  (sequential setup)      ╰→ Agent C: generate FileUtils.java   ─╯
+                                     (parallel fan-out)
+
+                          ╭→ Review StringUtils.java ─╮
+                          ├→ Review DateUtils.java   ─├→ (parallel fan-out)
+                          ╰→ Review FileUtils.java   ─╯
+```
+
+Each sub-agent wraps a Copilot SDK session. LangChain4j's `parallelBuilder()` handles concurrent execution — all 3 files are generated simultaneously, then all 3 are reviewed simultaneously, before committing and merging.
+
+Run it:
+
+```bash
+mvn compile exec:java -Dexec.mainClass=com.example.copilot.ParallelWorktreeExample
+```
+
+> Requires `langchain4j-agentic` (v1.12.2) — already included in the project's BOM.
 ## Prefer “zero project setup”? Use JBang
 
 If you don’t want to create a Maven or Gradle project just to try the SDK, you can run the repo’s example using [JBang](https://www.jbang.dev/). It’s the fastest “kick the tires” option when you’re experimenting or demoing.

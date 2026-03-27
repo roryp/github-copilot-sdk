@@ -61,7 +61,7 @@ public class WorktreeAutoMergeExample {
 
             // Step 3: Write generated code into the worktree
             System.out.println("[3/6] Writing generated code to worktree...");
-            generatedCode = stripMarkdownFences(generatedCode);
+            generatedCode = extractJavaSource(generatedCode);
             var targetFile = worktreePath.resolve(GENERATED_FILE);
             Files.createDirectories(targetFile.getParent());
             Files.writeString(targetFile, generatedCode);
@@ -115,25 +115,36 @@ public class WorktreeAutoMergeExample {
     }
 
     /**
-     * Uses Copilot to generate code, returning the full streamed response as a String.
+     * Uses Copilot to generate code with retry. Returns raw Java source.
      */
     private static String generateCodeWithCopilot(CopilotClient client, String prompt)
             throws Exception {
-        var session = client.createSession(
-            new SessionConfig()
-                .setModel("claude-sonnet-4.5")
-                .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
-                .setSystemMessage(new SystemMessageConfig()
-                    .setMode(SystemMessageMode.APPEND)
-                    .setContent("""
-                        <rules>
-                        - You are a code generator. Output ONLY valid Java source code.
-                        - No explanations, no markdown fences, no commentary.
-                        </rules>
-                        """))
-        ).get();
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            var session = client.createSession(
+                new SessionConfig()
+                    .setModel("claude-sonnet-4.5")
+                    .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
+                    .setSystemMessage(new SystemMessageConfig()
+                        .setMode(SystemMessageMode.APPEND)
+                        .setContent("""
+                            <rules>
+                            - You are a code generator. Output ONLY valid Java source code.
+                            - No explanations, no markdown fences, no commentary.
+                            - Your response MUST begin with "package com.example.copilot;"
+                            - Do NOT describe what you created. Just output the code.
+                            </rules>
+                            """))
+            ).get();
 
-        return collectResponse(session, prompt);
+            var response = collectResponse(session, prompt);
+            try {
+                return extractJavaSource(response);
+            } catch (RuntimeException e) {
+                System.out.println("       Attempt " + attempt + " returned non-Java response, retrying...");
+                if (attempt == 3) throw e;
+            }
+        }
+        throw new RuntimeException("Unreachable");
     }
 
     /**
@@ -185,19 +196,51 @@ public class WorktreeAutoMergeExample {
 
     // ── Helpers ──────────────────────────────────────────────────
 
-    /** Strips markdown code fences that Copilot may wrap around generated code. */
-    private static String stripMarkdownFences(String code) {
-        var stripped = code.strip();
-        if (stripped.startsWith("```")) {
-            int firstNewline = stripped.indexOf('\n');
-            if (firstNewline != -1) {
-                stripped = stripped.substring(firstNewline + 1);
-            }
-            if (stripped.endsWith("```")) {
-                stripped = stripped.substring(0, stripped.length() - 3).stripTrailing();
+    /**
+     * Extracts valid Java source code from a Copilot response.
+     * Handles markdown fences, conversational preamble/postamble, and mixed text.
+     */
+    private static String extractJavaSource(String response) {
+        var text = response.strip();
+
+        // 1. Try extracting from markdown code fences
+        int fenceStart = text.indexOf("```");
+        if (fenceStart >= 0) {
+            int codeStart = text.indexOf('\n', fenceStart);
+            if (codeStart >= 0) {
+                int fenceEnd = text.indexOf("```", codeStart);
+                if (fenceEnd > codeStart) {
+                    text = text.substring(codeStart + 1, fenceEnd).strip();
+                }
             }
         }
-        return stripped;
+
+        // 2. Find the start of actual Java source (package or import declaration)
+        int pkgIdx = text.indexOf("package ");
+        int impIdx = text.indexOf("import ");
+        int javaStart = -1;
+        if (pkgIdx >= 0 && impIdx >= 0) javaStart = Math.min(pkgIdx, impIdx);
+        else if (pkgIdx >= 0) javaStart = pkgIdx;
+        else if (impIdx >= 0) javaStart = impIdx;
+
+        if (javaStart > 0) {
+            text = text.substring(javaStart);
+        }
+
+        // 3. Trim any trailing conversational text after the last closing brace
+        int lastBrace = text.lastIndexOf('}');
+        if (lastBrace >= 0 && lastBrace < text.length() - 1) {
+            text = text.substring(0, lastBrace + 1);
+        }
+
+        // 4. Validate we have something that looks like Java
+        if (!text.startsWith("package ") && !text.startsWith("import ")) {
+            throw new RuntimeException(
+                "Copilot did not return valid Java source. Response starts with: "
+                + text.substring(0, Math.min(100, text.length())));
+        }
+
+        return text;
     }
 
     private static void git(String... args) throws IOException, InterruptedException {

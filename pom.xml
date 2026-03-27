@@ -19,13 +19,31 @@
         <exec.mainClass>com.example.copilot.Example</exec.mainClass>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-bom</artifactId>
+                <version>1.12.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.github</groupId>
             <artifactId>copilot-sdk-java</artifactId>
             <version>0.1.32-java.0</version>
         </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-agentic</artifactId>
+        </dependency>
     </dependencies>
+
+
 
     <build>
         <plugins>
@@ -38,6 +56,8 @@
                          and may contain non-Java content between runs. Exclude from compilation. -->
                     <excludes>
                         <exclude>**/StringUtils.java</exclude>
+                        <exclude>**/DateUtils.java</exclude>
+                        <exclude>**/FileUtils.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
