@@ -1,1 +1,0 @@
-Created `DateUtils.java` at `src\main\java\com\example\copilot\DateUtils.java` with all requested methods using Java 21 features (switch expressions, pattern matching).
