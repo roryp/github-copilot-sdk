@@ -1,1 +1,0 @@
-StringUtils.java created at `src\main\java\com\example\copilot\StringUtils.java` with reverse, isPalindrome, and truncate methods using Java 21 features.
