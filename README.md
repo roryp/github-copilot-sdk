@@ -224,6 +224,16 @@ mvn compile exec:java -Dexec.mainClass=com.example.copilot.AdvancedExample
 
 The workflow is **idempotent** — it can be run repeatedly without manual cleanup. Previous artifacts are automatically removed before each run.
 
+**Why a worktree?** A Git worktree gives the feature branch its own directory, so code generation and commits happen in isolation without disturbing your working directory on `main` — no stashing, no checkout switching. If you have the main repo open in VS Code, your workspace stays completely undisturbed until the final merge atomically brings the new file in — already committed, with a clean working tree.
+
+| Step | What happens | VS Code sees changes? |
+|---|---|---|
+| 1–3 | Create worktree, generate code, write file | **No** — work happens in a separate directory |
+| 4–5 | AI code review, commit in worktree | **No** — still isolated from main |
+| 6 | Merge feature branch into main | **Yes** — file appears in the explorer, already committed |
+
+> **Note:** All Git operations are **local only** — no `git push` or remote calls are made. Your remote repository is never modified.
+
 Run it:
 
 ```bash
