@@ -243,7 +243,7 @@ mvn compile exec:java -Dexec.mainClass=com.example.copilot.WorktreeAutoMergeExam
 
 <img src="docs/parallel-worktree.png" alt="Parallel Generate → Review Workflow — LangChain4j + Copilot SDK" width="800"/>
 
-*This diagram shows the fan-out pipeline: 3 parallel lanes each run a generate→review loop with retry, gated by code review before proceeding to commit.*
+*This diagram shows the fan-out pipeline: 3 parallel lanes each run a generate→review loop with retry, converging into an "All LGTM?" gate — if any file fails after 3 attempts, the entire merge is blocked.*
 
 [`ParallelWorktreeExample.java`](src/main/java/com/example/copilot/ParallelWorktreeExample.java) extends the worktree pattern with **parallel fan-out** using [LangChain4j's agentic module](https://github.com/langchain4j/langchain4j) (`AgenticServices.parallelBuilder()`), inspired by LangChain4j's [loop workflow pattern](https://docs.langchain4j.dev/tutorials/agents/):
 
