@@ -71,15 +71,26 @@ public class ParallelWorktreeExample {
             var stringUtilsWorkflow = buildGenerateAndReviewAction(worktreePath, GENERATED_FILES[0],
                     """
                     Generate a Java utility class called StringUtils in package com.example.copilot
-                    with these static methods:
-                    - reverse(String s) — reverses a string. Returns null if s is null.
-                      Use codePoints() for proper Unicode surrogate pair handling.
-                    - isPalindrome(String s) — checks if string is a palindrome (case-insensitive).
-                      Returns false if s is null. Use Locale.ROOT for toLowerCase.
-                    - truncate(String s, int maxLen) — truncates with "..." if longer than maxLen.
-                      Returns null if s is null. Throws IllegalArgumentException if maxLen < 0.
-                      If maxLen < 3 return s.substring(0, maxLen) without ellipsis.
-                    Use Java 21 features. No external dependencies.
+                    with a private constructor that throws AssertionError, and these static methods:
+
+                    - reverse(String s) — returns null if s is null. Returns "" if s is empty.
+                      Implementation: collect s.codePoints().toArray(), reverse the int array manually
+                      with a for-loop, then return new String(reversed, 0, reversed.length).
+                      Do NOT use StringBuilder.reverse() as it breaks surrogate pairs.
+
+                    - isPalindrome(String s) — returns false if s is null. Returns true if s is empty.
+                      Implementation: convert s.toLowerCase(Locale.ROOT), then collect codePoints()
+                      into an int array. Compare array[i] with array[length-1-i] in a for-loop
+                      from 0 to length/2. Do NOT use charAt or offsetByCodePoints.
+
+                    - truncate(String s, int maxLen) — returns null if s is null.
+                      Throws IllegalArgumentException if maxLen < 0.
+                      Implementation: use s.codePointCount(0, s.length()) to get the codepoint count.
+                      If count <= maxLen, return s unchanged.
+                      If maxLen < 3, return new String(s.codePoints().toArray(), 0, maxLen).
+                      Otherwise, return new String(s.codePoints().toArray(), 0, maxLen - 3) + "...".
+
+                    Use Java 21 features. Import java.util.Locale. No external dependencies.
                     Output ONLY the raw Java source code. No markdown fences, no explanation.
                     """, "StringUtils.java");
 
