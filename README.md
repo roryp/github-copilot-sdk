@@ -263,6 +263,23 @@ Each lane wraps a Copilot SDK session and runs its own **generate→review loop*
 
 This is analogous to LangChain4j's loop workflow where a scorer agent evaluates output quality and the loop continues until a threshold is met. Here, the "scorer" is the Copilot code reviewer and the threshold is `LGTM`.
 
+### What happens when a review fails?
+
+The review gate is strict — if a file can't pass review, it blocks the entire workflow:
+
+| Attempt | What happens |
+|---|---|
+| **1st fail** | Reviewer's feedback is captured and appended to the generation prompt: *"Fix ALL of these issues: [feedback]"*. Code is regenerated. |
+| **2nd fail** | Same process — latest feedback replaces the previous, code is regenerated again. |
+| **3rd fail** | The lane throws `RuntimeException`, which propagates through `parallelBuilder()` and **blocks the commit and merge steps entirely**. |
+
+This means:
+- **No file can sneak past a failed review** — every generated class must get `LGTM` before the workflow proceeds
+- **A single failed file blocks all files** — even if the other two lanes passed, the commit won't happen
+- **Cleanup always runs** — the `finally` block removes the worktree and branch regardless of success or failure
+
+The feedback loop is the key to reliability: rather than just retrying blindly, the reviewer's specific issues (e.g., "missing null check", "surrogate pair bug in `truncate()`") are fed directly into the next generation prompt, so Copilot can fix exactly what was flagged.
+
 Run it:
 
 ```bash
